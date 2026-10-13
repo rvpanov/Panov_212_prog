@@ -8,12 +8,30 @@
 using namespace std;
 
 template <typename T>
-
 class DynamicArray{
 private:
     T* data;
     size_t size;
-    size_t capacity
+    size_t capacity;
+
+    class Proxy{
+        private:
+            DynamicArray& arr;
+            size_t index;
+
+        public:
+        Proxy(DynamicArray& a, size_t i) : arr(a), index(i) {}
+
+        Proxy& operator = (const T& value){
+            arr.set(index, value);
+            return *this;
+        }
+
+        operator T() const{
+            return arr.get(index);
+        }
+    };
+
 public:
     DynamicArray(size_t n) : size(n), capacity(n){ 
     data = new T[capacity]();
@@ -43,32 +61,35 @@ public:
         data[index] = value;
     }
 
-    T get(size_t index){
+    T get(size_t index) const {
         if(index >= size){
             throw out_of_range("Index Error!");
         }
         return data[index];
     }
 
-    void push_back(T value) {
-        if constexpr (is_integral_v<T>) {
-            if (value < -100 || value > 100) {
+    void push_back(T value){
+        if constexpr(is_integral_v<T>){
+            if(value < -100 || value > 100){
                 throw invalid_argument("Value Error!");
             }
         }
-        if (size == capacity) {
-            capacity = (capacity == 0) ? 1 : capacity * 2;
-            T* new_data = new T[capacity]();  
-            for (size_t i = 0; i < size; i++) {
-                new_data[i] = data[i];
+
+        if(size == capacity){
+            capacity *= 2;
+            if(capacity == 0){
+                capacity++;
             }
-            delete[] data;
-            data = new_data;
+        T* new_data = new T[capacity]();
+        for(size_t i = 0; i < size; i++){
+            new_data[i] = data[i];
         }
-        
-        data[size] = value;
-        size++;
+        delete[] data;
+        data = new_data;
     }
+    data[size] = value;
+    size++;
+}
 
     void add(const DynamicArray& other){
         size_t limit;
@@ -96,7 +117,7 @@ public:
         }
     }
 
-    double distance(const DynamicArray& other){
+    double distance(const DynamicArray& other) const {
         if(size != other.size){
             throw invalid_argument("Size Error!");
         }
@@ -119,4 +140,72 @@ public:
         }
         return os;
     }
+
+    Proxy operator[](size_t index){
+        return Proxy(*this, index);
+    }
+
+    const T& operator[](size_t index) const {
+        return get(index);
+    }
+
+    bool operator==(const DynamicArray& other) const{
+        if(size != other.size) return false;
+        for(size_t i = 0; i < size; i++){
+            if(data[i] != other.data[i]) return false;
+        }
+        return true;
+    }
+
+    bool operator!=(const DynamicArray& other) const{
+        return !(*this == other);
+    }
+
+    DynamicArray& operator+=(const DynamicArray& other){
+        size_t limit;
+        if(size <= other.size){
+            limit = size;
+        }else{
+            limit = other.size;
+        }
+        for(size_t i = 0; i < limit; i++){
+            set(i, data[i] + other.data[i]);
+        }
+        return *this;
+    }
+    
+    DynamicArray& operator-=(const DynamicArray& other){
+        size_t limit;
+        if(size <= other.size){
+            limit = size;
+        }else{
+            limit = other.size;
+        }
+        for(size_t i = 0; i < limit; i++){
+            set(i, data[i] - other.data[i]);
+        }
+        return *this;
+    }
+
+    DynamicArray& operator+=(const T& scalar){
+        for(size_t i = 0; i < size; i++){
+            set(i, data[i] + scalar);
+        }
+        return *this;
+    }
+
+    DynamicArray& operator-=(const T& scalar){
+        for(size_t i = 0; i < size; i++){
+            set(i, data[i] - scalar);
+        }
+        return *this;
+    }
+
+    using iterator = T*;
+    using const_iterator = const T*;
+
+    iterator begin(){return data;}
+    iterator end(){return data + size;}
+    const_iterator begin() const { return data;}
+    const_iterator end() const {return data + size;}
 };
