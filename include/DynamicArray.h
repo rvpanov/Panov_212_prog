@@ -49,7 +49,22 @@ public:
         }
     }
 
-    void set(size_t index, T value){
+    DynamicArray& operator=(const DynamicArray& other){
+
+        if(this == &other) return *this;
+
+        delete[] data;
+
+        size = other.size;
+        capacity = other.capacity;
+        data = new T[capacity]();
+        for(size_t i = 0; i < size; i++){
+            data[i] = other.data[i];
+        }
+        return *this;
+    }
+
+     void set(size_t index, T value){
         if(index >= size){
             throw out_of_range("Index Error!");
         }
@@ -68,6 +83,30 @@ public:
         return data[index];
     }
 
+    DynamicArray(DynamicArray&& other) noexcept : data(other.data), size(other.size), capacity(other.capacity){
+
+        other.data = nullptr;
+        other.size = 0;
+        other.capacity = 0;
+    }
+
+    DynamicArray& operator=(DynamicArray&& other) noexcept{
+        if(this == &other) return *this;
+
+        delete[] data;
+
+        data = other.data;
+        size = other.size;
+        capacity = other.capacity;
+
+        other.data = nullptr;
+        other.size = 0;
+        other.capacity = 0;
+
+        return *this;
+    }
+
+
     void push_back(T value){
         if constexpr(is_integral_v<T>){
             if(value < -100 || value > 100){
@@ -80,16 +119,16 @@ public:
             if(capacity == 0){
                 capacity++;
             }
-        T* new_data = new T[capacity]();
-        for(size_t i = 0; i < size; i++){
-            new_data[i] = data[i];
+            T* new_data = new T[capacity]();
+            for(size_t i = 0; i < size; i++){
+                new_data[i] = data[i];
+            }
+            delete[] data;
+            data = new_data;
         }
-        delete[] data;
-        data = new_data;
+        data[size] = value;
+        size++;
     }
-    data[size] = value;
-    size++;
-}
 
     void add(const DynamicArray& other){
         size_t limit;
@@ -208,4 +247,6 @@ public:
     iterator end(){return data + size;}
     const_iterator begin() const { return data;}
     const_iterator end() const {return data + size;}
+
+    size_t getSize() const {return size;}
 };

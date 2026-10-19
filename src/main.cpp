@@ -1,96 +1,55 @@
 #include "DynamicArray.h"
-#include <new>
+#include <utility>
 #include<string>
 
-int main(){
-    cout << "PART 4" << endl << endl;
 
-    cout << "TEST OPERATOR[]" << endl << endl;
+void processArray(DynamicArray<int> arr) {
+        cout << "size: " << arr.getSize() << endl;
+} 
+
+int main(){
+    cout << "PART 5" << endl << endl;
+
+    cout << "TEST OPERATOR=" << endl << endl;
 
     DynamicArray<int> arrInt(3);
     arrInt[0] = 1;
     arrInt[1] = 2;
     arrInt[2] = 3;
-
-    cout << arrInt << endl;
-    cout << arrInt[1] << endl;
-
-    try{
-        arrInt[5] = 67;
-    }catch(const out_of_range& e){
-        cout << e.what() << endl;
-    }
-
-    try{
-        arrInt[1] = 6767;
-    }catch(const invalid_argument& e){
-        cout << e.what() << endl;
-    }
     DynamicArray<int> arrInt2(3);
-    arrInt2[0] = 1;
-    arrInt2[1] = 2;
-    arrInt2[2] = 3;
+    arrInt2[0] = 4;
+    arrInt2[1] = 4;
+    arrInt2[2] = 4;
 
-    if(arrInt == arrInt2){
-        cout << "true" << endl;
-    }else{
-        cout << "false";
-    }
+    arrInt2 = arrInt;
+    arrInt = arrInt;
 
-    arrInt2[2] = 67;
-    if(arrInt != arrInt2){
-        cout << "true" << endl;
-    }else{
-        cout << "false";
-    }
-
-    arrInt += arrInt2;
+    cout << arrInt2 << endl;
     cout << arrInt << endl;
 
-    arrInt -= 67;
-    cout << arrInt << endl;
 
-    for(const auto& x : arrInt2){
-        cout << x << " ";
-    }
-    cout << endl;
+    DynamicArray<int> arrInt3 = std::move(arrInt);
+    cout << arrInt3 << endl;
+    cout << "arrInt: "<< arrInt << "(obnulen)" << endl;
 
-    for(auto& x : arrInt2){
-        x = x*2;
-        cout << x << " ";
-    }
-    cout << endl;
+  
+    DynamicArray<int> arrInt4(2);
+    arrInt4[0] = 1;
+    arrInt4[1] = 10;
 
-    cout  << "distance: " << arrInt.distance(arrInt2) << endl << endl;
+    arrInt4 = std::move(arrInt3);
 
-    cout << "STRING" << endl << endl;
+    cout << arrInt4 << endl;
+    cout << "arrInt3: " << arrInt3 << " obnulen" << endl;
 
-    DynamicArray<string> arrStr(2);
-    arrStr[0] = "Hello";
-    arrStr[1] = "World";
-    arrStr += "!!!";
-    cout << arrStr << endl;
 
-    DynamicArray<string> arrStr2(2);
+    cout << "Size arrInt4 begin: " << arrInt4.getSize() << endl;
+    processArray(arrInt4);
+    cout << "Size arrInt4 Last: " << arrInt4.getSize() << endl;
 
-    try{
-        double d = arrStr.distance(arrStr2);
-        cout << d;
-    }catch(const bad_typeid& e){
-        cout << e.what() << endl;
-    }
+    cout << "Move" << endl;
+    cout << "Size arrInt4 Begin: " << arrInt4.getSize() << endl;
+    processArray(std::move(arrInt4));
+    cout << "Size arrInt4 last: " << arrInt4.getSize() << endl;
 
-    DynamicArray<int> arrInt3(2);
-
-    arrInt3.set(0, 1);
-    arrInt3.set(1, 2);
-
-    try{
-        double d = arrInt.distance(arrInt3);
-        cout << d;
-    }catch(const invalid_argument& e){
-        cout << e.what() << endl;
-    }
-
-    return 0;
 }
